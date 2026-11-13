@@ -5,6 +5,6 @@ COPY package*.json ./
 RUN npm install --omit=dev --no-audit --no-fund
 COPY . .
 RUN mkdir -p /app/sessions /app/public/uploads
-EXPOSE 8443
+EXPOSE 8444
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "server.js"]

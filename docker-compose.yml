@@ -28,7 +28,7 @@ services:
       - ./sessions:/app/sessions
       - /root/traefik/certs:/app/certs:ro
     ports:
-      - "0.0.0.0:8443:8443"
+      - "0.0.0.0:8444:8444"
     networks:
       - crm_net
 

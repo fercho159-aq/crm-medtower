@@ -33,7 +33,7 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 app.use(cors({
-    origin: ['https://medtower.com.mx', 'https://crmmedtower.mawsoluciones.com', 'http://localhost:3000', 'http://localhost:8443'],
+    origin: ['https://medtower.com.mx', 'https://crmmedtower.mawsoluciones.com', 'http://localhost:3000', 'http://localhost:8444'],
     credentials: true
 }));
 

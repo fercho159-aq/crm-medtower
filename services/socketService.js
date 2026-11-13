@@ -4,7 +4,7 @@ const init = (server) => {
     const { Server } = require('socket.io');
     io = new Server(server, {
         cors: {
-            origin: ['https://medtower.com.mx', 'https://crmmedtower.mawsoluciones.com', 'http://localhost:3000', 'http://localhost:8443'],
+            origin: ['https://medtower.com.mx', 'https://crmmedtower.mawsoluciones.com', 'http://localhost:3000', 'http://localhost:8444'],
             credentials: true
         }
     });
