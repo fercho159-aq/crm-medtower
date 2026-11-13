@@ -8,6 +8,7 @@ services:
       POSTGRES_PASSWORD: MitMedT0wer2026$
     volumes:
       - crm_medtower_pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U crm_medtower -d crm_medtower"]
       interval: 10s
