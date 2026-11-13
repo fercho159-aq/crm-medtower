@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: crm_medtower
+      POSTGRES_USER: crm_medtower
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - crm_medtower_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm_medtower -d crm_medtower"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crm_net
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - ./sessions:/app/sessions
+      - /root/traefik/certs:/app/certs:ro
+    ports:
+      - "0.0.0.0:8443:8443"
+    networks:
+      - crm_net
+
+volumes:
+  crm_medtower_pgdata:
+
+networks:
+  crm_net:
+    driver: bridge
