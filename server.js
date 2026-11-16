@@ -223,11 +223,6 @@ server.listen(PORT, async () => {
         const defaultConfig = {
             enabled: true,
             enabled_principal: true,
-            menu_principal_mensaje: `\xA1Hola! Bienvenido(a) a ${features.BRAND_NAME}. \uD83C\uDFE5 Soy tu asistente virtual. \xBFEn qu\xE9 podemos ayudarte?\n\nSelecciona una opci\xF3n:\n1. Agendar cita m\xE9dica \uD83D\uDCC5\n2. Informaci\xF3n de especialidades \uD83E\uDE7A\n3. Laboratorio y estudios \uD83D\uDD2C\n4. Hablar con un asesor \uD83D\uDC64`,
-            agendar_mensaje: `\xA1Gracias por tu inter\xE9s! \uD83D\uDCC5 Hemos registrado tu solicitud de cita. En breve, uno de nuestros asesores te contactar\xE1 por este chat para agendar tu consulta con el especialista adecuado. \xA1Un momento por favor!`,
-            info_mensaje: `\xA1Gracias por tu inter\xE9s! \uD83E\uDE7A En MIT Medical Tower contamos con m\xE1s de 15 especialidades m\xE9dicas, laboratorio, radiolog\xEDa y ultrasonograf\xEDa. Un asesor te brindar\xE1 informaci\xF3n detallada en un momento. \xA1Espera por favor!`,
-            laboratorio_mensaje: `\xA1Gracias! \uD83D\uDD2C Hemos registrado tu consulta sobre laboratorio y estudios. Un asesor te contactar\xE1 para darte informaci\xF3n sobre disponibilidad, preparaci\xF3n y costos. \xA1Un momento por favor!`,
-            asesor_mensaje: `\xA1Entendido! \uD83D\uDC64 Te transferiremos con un asesor en este momento. Por favor espera un momento mientras te asignamos. \xA1Gracias por contactar a ${features.BRAND_NAME}!`
         };
         if (rows.length === 0) {
             await query("INSERT INTO bot_settings (key, value) VALUES ('flow_config', $1)", [JSON.stringify(defaultConfig)]);
