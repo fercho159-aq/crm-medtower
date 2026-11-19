@@ -108,6 +108,71 @@
     // ═══════════════════════════════════════════════════════════════
     //  TAB: Diagrama (Mermaid solo con los 18 steps del flujo)
     // ═══════════════════════════════════════════════════════════════
+
+    // Mapeo step → clave del mensaje que envía el bot (para el modal de preview)
+    const STEP_TO_MENSAJE = {
+        step_1: 'SALUDO_MENU',
+        cierre_venta: 'CIERRE_VENTA',
+        cierre_sin_venta: 'CIERRE_SIN_VENTA',
+        cierre_distancia: 'CIERRE_SIN_VENTA_DISTANCIA',
+        escalar_asesor: 'ESCALAR_ASESOR',
+        emergencia: 'EMERGENCIA',
+        crisis: 'CRISIS',
+        step_70: 'PEDIR_NOMBRE',
+    };
+
+    // Texto generado dinámicamente por el bot para pasos que no son un mensaje fijo
+    function getDynamicStepText(stepId) {
+        if (!flowData) return null;
+        const c = flowData.catalogo;
+        if (stepId === 'step_10') {
+            let t = '📋 *Nuestras especialidades*\n\nEscribe el *número*:\n\n';
+            c.especialidades.forEach((e, i) => { t += `${i + 1}. ${e.emoji} ${e.nombre}\n`; });
+            t += '\n0️⃣ Volver al menú';
+            return t;
+        }
+        if (stepId === 'step_20') {
+            let t = '✨ *Cirugía y procedimientos*\n\n*Cirugía plástica y estética:*\n';
+            c.procedimientos.filter(p => p.cat === 'estetica').forEach((p, i) => { t += `${i + 1}. ${p.nombre} — desde ${p.desde}\n`; });
+            t += '\n*Cirugía pediátrica y hernias:*\n';
+            c.procedimientos.filter(p => p.cat !== 'estetica').forEach((p, i) => { t += `${i + 5}. ${p.nombre} — desde ${p.desde}\n`; });
+            if (flowData.promocion_activa && flowData.promocion_activa.activa) t += `\n${flowData.promocion_activa.texto}\n`;
+            t += '\n_Todos requieren valoración previa ($700, anticipo $200). El costo final puede aumentar según la complejidad._\n\nEscribe el *número* del procedimiento o *0* para volver.';
+            return t;
+        }
+        if (stepId === 'step_30') {
+            let t = '🔬 *Laboratorio y estudios*\n\n*Laboratorio clínico (sin cita):*\n';
+            c.laboratorio.forEach(l => { t += `• ${l.nombre}: *$${l.precio} MXN*${l.nota ? ` (${l.nota})` : ''}\n`; });
+            t += '\n_Se pagan directamente en la clínica. Las indicaciones de preparación las confirma un asesor._\n';
+            t += '\n*Estudios con cita:*\n';
+            c.estudios.forEach((e, i) => { t += `${i + 1}. ${e.nombre}${e.costo ? ` — $${e.costo.toLocaleString()}` : ' — precio con asesor'}\n`; });
+            t += '\nEscribe el *número* del estudio para más detalle, o *0* para volver.';
+            return t;
+        }
+        if (stepId === 'step_40') {
+            return `📍 *MIT Medical Tower*\n\n🏢 ${c.clinica.direccion}\n🕐 Horario: ${c.clinica.horario}\n📞 WhatsApp: ${c.clinica.whatsapp}\n📧 ${c.clinica.email || 'mitmedicalt@yahoo.com'}\n🌐 ${c.clinica.web}\n\n📌 Google Maps:\n${c.clinica.maps}`;
+        }
+        if (stepId === 'step_11') {
+            return '— Se arma dinámicamente por especialidad —\n\nEjemplo con Urología:\n\n🩺 *Urología*\n\n💰 Costo total: *$800 MXN*\n• Anticipo para apartar: *$200*\n• Resto el día de tu cita: *$600*\n🕐 Horario: Lunes, miércoles y sábado, de 10:00 am a 12:00 pm.\n\n¿Te gustaría agendar tu cita?\n\n_Cambia los valores desde la pestaña "Especialidades"._';
+        }
+        if (stepId === 'step_21') {
+            return '— Se arma dinámicamente por procedimiento —\n\nEjemplo con Rinoplastia:\n\n✨ *Rinoplastia ultrasónica*\n\nPrecio desde *$47,999 MXN*.\n_El costo final se confirma en una valoración con el cirujano, que cuesta $700 con $200 de anticipo._\n\n¿Te gustaría agendar la valoración?\n\n_Cambia los valores desde la pestaña "Cirugías"._';
+        }
+        if (stepId === 'step_32') {
+            return '— Se arma dinámicamente por estudio —\n\nEjemplo con Holter:\n\n🔬 *Holter* (Cardiología)\n\nmonitoreo del ritmo del corazón\n💰 Costo total: *$1,500 MXN*\n• Anticipo: *$500*\n• Resto: *$1,000*\n\n¿Te gustaría agendar este estudio?\n\n_Cambia los valores desde la pestaña "Estudios"._';
+        }
+        if (stepId === 'step_71') {
+            return '— Mensaje generado dinámicamente —\n\nGracias por la información. ¿Qué *día y horario* prefieres?\n\n_Se añade el horario de la especialidad si aplica._';
+        }
+        if (stepId === 'step_72') {
+            return '— El bot pregunta día/horario, y al recibirlo envía el CIERRE CON VENTA —\n\nGracias, [Nombre]. ¿Qué *día y horario* prefieres para tu cita?';
+        }
+        if (stepId === 'step_0') {
+            return '— Paso inicial —\n\nEl bot analiza el primer mensaje del cliente y decide a dónde llevarlo:\n\n• Si saluda ("hola") → envía el MENÚ PRINCIPAL\n• Si menciona una especialidad → va directo a INFO DE ESPECIALIDAD\n• Si menciona un procedimiento → va a INFO DE PROCEDIMIENTO\n• Si menciona un síntoma → sugiere la especialidad adecuada\n• Si es emergencia → ALERTA DE EMERGENCIA\n• Si es crisis emocional → LÍNEA DE LA VIDA';
+        }
+        return null;
+    }
+
     async function renderDiagramTab(container) {
         container.innerHTML = `
             <div class="bg-[#0a1230] border border-[#1e3a5f] rounded-xl p-3 sm:p-4">
@@ -122,14 +187,13 @@
                         <span class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0e1555] border border-[#1e3a5f]"><span class="w-3 h-3 rounded-sm" style="background:#a855f7"></span> Escalar</span>
                         <span class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0e1555] border border-[#1e3a5f]"><span class="w-3 h-3 rounded-sm" style="background:#ef4444"></span> Alerta</span>
                     </div>
+                    <div class="text-[11px] text-gray-500 flex items-center gap-1.5">
+                        <i class='bx bx-mouse-alt text-base'></i> Click en un nodo para ver lo que dice el bot — arrastra para mover el diagrama
+                    </div>
                 </div>
-                <div class="bg-[#050820] rounded-lg border border-[#1e3a5f]/60 p-4 overflow-auto custom-scrollbar" style="max-height:72vh;">
+                <div id="bot-flow-diagram-wrap" class="bg-[#050820] rounded-lg border border-[#1e3a5f]/60 p-4 overflow-auto custom-scrollbar select-none cursor-grab" style="max-height:72vh;">
                     <div id="bot-flow-diagram" class="min-w-fit"></div>
                 </div>
-                <p class="mt-3 text-xs text-gray-500 flex items-center gap-1.5">
-                    <i class='bx bx-info-circle text-base'></i>
-                    Este diagrama muestra solo el camino que recorre la conversación. Para editar precios, horarios o mensajes, usa las otras pestañas.
-                </p>
             </div>
         `;
 
@@ -140,8 +204,13 @@
 
         const source = buildSimpleMermaid(flowData.flujo);
         try {
-            const { svg } = await mermaid.render('bfd-' + Date.now(), source);
-            document.getElementById('bot-flow-diagram').innerHTML = svg;
+            const { svg, bindFunctions } = await mermaid.render('bfd-' + Date.now(), source);
+            const diagram = document.getElementById('bot-flow-diagram');
+            diagram.innerHTML = svg;
+            if (bindFunctions) bindFunctions(diagram);
+            wireDragToPan(document.getElementById('bot-flow-diagram-wrap'));
+            // Cursor pointer en los nodos clicables
+            diagram.querySelectorAll('g.node').forEach(g => { g.style.cursor = 'pointer'; });
         } catch (err) {
             console.error('Mermaid error:', err);
             document.getElementById('bot-flow-diagram').innerHTML = `<pre class="text-red-400 text-xs whitespace-pre-wrap">${esc(err.message)}</pre>`;
@@ -153,7 +222,6 @@
         const edgeLabel = (s) => `"${String(s || '').replace(/["«»<>]/g, '')}"`;
 
         for (const n of flujo.nodos) {
-            // Quitamos \n y limitamos ancho para que el texto no se descuadre
             const titulo = String(n.titulo || '').replace(/["<>]/g, '');
             const lbl = `${titulo}<br/><span style='font-size:11px;opacity:.65'>step ${n.step}</span>`;
             let shape;
@@ -168,6 +236,8 @@
             else                                  shape = `["${lbl}"]`;
             lines.push(`${n.id}${shape}`);
             lines.push(`class ${n.id} tipo_${n.tipo}`);
+            // Click handler: cada nodo abre el modal con su mensaje
+            lines.push(`click ${n.id} call window.__bfNodeClick("${n.id}")`);
         }
 
         for (const a of flujo.aristas) {
@@ -183,6 +253,137 @@
         lines.push(`classDef tipo_escalar fill:#a855f7,stroke:#c084fc,color:#fff,stroke-width:2px`);
         lines.push(`classDef tipo_alerta fill:#ef4444,stroke:#fca5a5,color:#fff,stroke-width:2px`);
         return lines.join('\n');
+    }
+
+    // Drag-to-pan (click sostenido + mover)
+    function wireDragToPan(wrap) {
+        if (!wrap) return;
+        let dragging = false;
+        let startX = 0, startY = 0, scrollL = 0, scrollT = 0;
+        let moved = false;
+
+        wrap.addEventListener('mousedown', (e) => {
+            // Permitir drag solo cuando NO se hizo click en un nodo (para no bloquear el click)
+            if (e.target.closest('g.node')) return;
+            dragging = true;
+            moved = false;
+            startX = e.pageX;
+            startY = e.pageY;
+            scrollL = wrap.scrollLeft;
+            scrollT = wrap.scrollTop;
+            wrap.classList.add('cursor-grabbing');
+            wrap.classList.remove('cursor-grab');
+        });
+        wrap.addEventListener('mouseleave', () => {
+            dragging = false;
+            wrap.classList.remove('cursor-grabbing');
+            wrap.classList.add('cursor-grab');
+        });
+        wrap.addEventListener('mouseup', () => {
+            dragging = false;
+            wrap.classList.remove('cursor-grabbing');
+            wrap.classList.add('cursor-grab');
+        });
+        wrap.addEventListener('mousemove', (e) => {
+            if (!dragging) return;
+            const dx = e.pageX - startX;
+            const dy = e.pageY - startY;
+            if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+            wrap.scrollLeft = scrollL - dx;
+            wrap.scrollTop = scrollT - dy;
+            e.preventDefault();
+        });
+        // Cancelar el click si hubo arrastre (evita que abra modal al hacer pan sobre un nodo)
+        wrap.addEventListener('click', (e) => {
+            if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; }
+        }, true);
+    }
+
+    // Handler expuesto a Mermaid al hacer click en un nodo
+    window.__bfNodeClick = function (nodeId) {
+        showNodeModal(nodeId);
+    };
+
+    function showNodeModal(nodeId) {
+        const node = flowData.flujo.nodos.find(n => n.id === nodeId);
+        if (!node) return;
+
+        const mensajeKey = STEP_TO_MENSAJE[nodeId];
+        const dynamicText = getDynamicStepText(nodeId);
+        const fixedText = mensajeKey ? (flowData.catalogo.mensajes[mensajeKey] || '') : null;
+        const bodyText = fixedText || dynamicText || node.descripcion || '(sin mensaje)';
+        const editable = !!mensajeKey;
+
+        // Overlay
+        let overlay = document.getElementById('bf-node-modal');
+        if (overlay) overlay.remove();
+        overlay = document.createElement('div');
+        overlay.id = 'bf-node-modal';
+        overlay.className = 'fixed inset-0 modal-overlay z-50 flex items-center justify-center p-3';
+        overlay.innerHTML = `
+            <div class="panel w-full max-w-2xl p-5 relative max-h-[90vh] flex flex-col bg-[#0a1230] border border-[#1e3a5f] rounded-xl shadow-2xl">
+                <div class="flex items-start justify-between pb-3 mb-3 border-b border-[#1e3a5f]">
+                    <div class="min-w-0 pr-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-${badgeColor(node.tipo)}/20 text-${badgeColor(node.tipo)} border border-${badgeColor(node.tipo)}/40">${nodeTypeLabel(node.tipo)}</span>
+                            <span class="text-[10px] font-mono text-gray-500">step ${node.step}</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">${esc(node.titulo)}</h3>
+                    </div>
+                    <button id="bf-modal-close" class="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800"><i class='bx bx-x text-2xl'></i></button>
+                </div>
+                <div class="flex-grow overflow-y-auto custom-scrollbar pr-1 space-y-3">
+                    <div>
+                        <div class="text-[11px] uppercase tracking-wider text-gray-500 font-bold mb-1">
+                            ${fixedText ? '💬 Texto que envía el bot (editable)' : dynamicText ? '💬 Texto que envía el bot (generado dinámicamente)' : 'Descripción'}
+                        </div>
+                        <div class="bg-[#070b2e] border border-[#1e3a5f] rounded-md p-4 text-sm text-gray-200 whitespace-pre-wrap font-mono leading-relaxed" style="max-height:50vh;overflow:auto;">${esc(bodyText)}</div>
+                    </div>
+                    ${!editable && dynamicText ? `
+                        <div class="bg-cyan-950/30 border border-cyan-800/50 rounded-md p-3 text-xs text-cyan-200">
+                            <i class='bx bx-info-circle mr-1'></i>
+                            Este texto se construye con los datos del catálogo. Para cambiarlo, edita las especialidades, cirugías, estudios, laboratorio, clínica o promoción desde sus pestañas.
+                        </div>
+                    ` : ''}
+                </div>
+                <div class="pt-3 mt-3 border-t border-[#1e3a5f] flex items-center gap-2">
+                    ${editable ? `<button id="bf-modal-edit" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2 rounded-md text-sm transition-colors flex items-center justify-center gap-2"><i class='bx bx-edit'></i> Editar este mensaje</button>` : ''}
+                    <button id="bf-modal-dismiss" class="${editable ? 'px-4' : 'flex-1'} py-2 border border-[#1e3a5f] text-gray-300 hover:bg-[#0e1555] rounded-md text-sm font-semibold transition-colors">Cerrar</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        const close = () => overlay.remove();
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        overlay.querySelector('#bf-modal-close').addEventListener('click', close);
+        overlay.querySelector('#bf-modal-dismiss').addEventListener('click', close);
+        const editBtn = overlay.querySelector('#bf-modal-edit');
+        if (editBtn) editBtn.addEventListener('click', () => {
+            close();
+            activeTab = 'mensajes';
+            expandedCardId = `mensaje:${mensajeKey}`;
+            renderTabs();
+            renderActiveTab();
+            // Scroll al card
+            setTimeout(() => {
+                const target = document.querySelector('.bf-card-head');
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        });
+    }
+
+    function badgeColor(tipo) {
+        return {
+            inicio: 'blue-400', menu: 'cyan-400', info: 'emerald-400', captura: 'yellow-400',
+            cierre: 'green-400', cierre_frio: 'gray-400', escalar: 'purple-400', alerta: 'red-400',
+        }[tipo] || 'gray-400';
+    }
+    function nodeTypeLabel(tipo) {
+        return {
+            inicio: 'Inicio', menu: 'Menú', info: 'Info', captura: 'Captura de datos',
+            cierre: 'Cierre con venta', cierre_frio: 'Cierre sin venta', escalar: 'Escalar a asesor', alerta: 'Alerta médica',
+        }[tipo] || tipo;
     }
 
     // ═══════════════════════════════════════════════════════════════
