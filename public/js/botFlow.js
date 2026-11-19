@@ -180,9 +180,11 @@
         lines.push(`class promo_node tipo_global`);
         lines.push(`click promo_node call window.__botFlowClick("promocion","")`);
 
-        // Aristas del flujo principal
+        // Aristas del flujo principal — envolvemos el label en comillas dobles
+        // para que Mermaid acepte caracteres como ( ) / y comillas tipográficas.
+        const edgeLabel = (s) => `"${String(s || '').replace(/["«»]/g, '').replace(/</g, '').replace(/>/g, '')}"`;
         for (const a of flujo.aristas) {
-            lines.push(`${a.from} -->|${esc(a.label)}| ${a.to}`);
+            lines.push(`${a.from} -->|${edgeLabel(a.label)}| ${a.to}`);
         }
 
         // Clases con color (coinciden con la leyenda del HTML)
