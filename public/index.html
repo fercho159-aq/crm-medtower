@@ -902,41 +902,218 @@
 
             <!-- ╔═══════════════════════════════════════════════════╗
                  ║  Flujo del Bot — tabs + editor inline             ║
+                 ║  Paleta: navy MIT + teal #4ec3cd (brand accent)   ║
                  ╚═══════════════════════════════════════════════════╝ -->
+            <style>
+                /* Paleta MIT */
+                #bot-flow-view { --mit-ink: #4ec3cd; --mit-ink-soft: rgba(78,195,205,0.15); }
+
+                /* Hero del header: gradiente suave */
+                #bot-flow-view .bf-hero {
+                    background: linear-gradient(135deg, rgba(14,21,85,0.9) 0%, rgba(30,58,138,0.6) 50%, rgba(78,195,205,0.08) 100%);
+                    border: 1px solid rgba(78,195,205,0.25);
+                    border-radius: 1.25rem;
+                    padding: 1.1rem 1.25rem;
+                    box-shadow: 0 10px 30px -15px rgba(78,195,205,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+                }
+
+                /* Tab chip pill */
+                #bot-flow-view .bftab {
+                    border-radius: 999px;
+                    padding: 0.5rem 0.95rem;
+                    border: 1px solid #1e3a5f;
+                    background: #070b2e;
+                    color: #cbd5e1;
+                    font-weight: 600;
+                    font-size: 12.5px;
+                    transition: all 0.2s ease;
+                    white-space: nowrap;
+                }
+                #bot-flow-view .bftab:hover {
+                    border-color: var(--mit-ink);
+                    color: var(--mit-ink);
+                    transform: translateY(-1px);
+                }
+                #bot-flow-view .bftab.active {
+                    background: linear-gradient(135deg, var(--mit-ink) 0%, #38bdf8 100%);
+                    color: #042f2e;
+                    border-color: var(--mit-ink);
+                    box-shadow: 0 4px 14px -4px rgba(78,195,205,0.6);
+                }
+                #bot-flow-view .bftab.active:hover { color: #042f2e; transform: translateY(-1px); }
+
+                /* Panels */
+                #bot-flow-view .bf-panel {
+                    background: linear-gradient(180deg, #0a1230 0%, #080e26 100%);
+                    border: 1px solid rgba(78,195,205,0.18);
+                    border-radius: 1.25rem;
+                    box-shadow: 0 8px 24px -16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+                }
+                #bot-flow-view .bf-panel-soft {
+                    background: #070b2e;
+                    border: 1px solid #1e3a5f;
+                    border-radius: 1rem;
+                }
+
+                /* Cards del catálogo */
+                #bot-flow-view .bf-card {
+                    background: linear-gradient(180deg, #0a1230 0%, #080e26 100%);
+                    border: 1px solid #1e3a5f;
+                    border-radius: 1rem;
+                    transition: border-color .2s ease, transform .15s ease, box-shadow .2s ease;
+                }
+                #bot-flow-view .bf-card:hover {
+                    border-color: rgba(78,195,205,0.5);
+                    transform: translateY(-1px);
+                    box-shadow: 0 10px 24px -14px rgba(78,195,205,0.35);
+                }
+                #bot-flow-view .bf-card.active {
+                    border-color: var(--mit-ink);
+                    box-shadow: 0 0 0 1px rgba(78,195,205,0.4), 0 12px 28px -14px rgba(78,195,205,0.45);
+                }
+
+                /* Inputs del editor */
+                #bot-flow-view .bf-input {
+                    background: #050820;
+                    border: 1px solid #1e3a5f;
+                    border-radius: 0.6rem;
+                    padding: 0.55rem 0.75rem;
+                    font-size: 0.875rem;
+                    color: #f1f5f9;
+                    width: 100%;
+                    transition: border-color .15s ease, box-shadow .15s ease;
+                }
+                #bot-flow-view .bf-input:focus {
+                    outline: none;
+                    border-color: var(--mit-ink);
+                    box-shadow: 0 0 0 3px rgba(78,195,205,0.15);
+                }
+
+                /* Botón primario MIT */
+                #bot-flow-view .bf-btn-primary {
+                    background: linear-gradient(135deg, var(--mit-ink) 0%, #22d3ee 100%);
+                    color: #042f2e;
+                    font-weight: 700;
+                    border-radius: 0.75rem;
+                    padding: 0.55rem 1rem;
+                    transition: filter .15s ease, transform .15s ease, box-shadow .15s ease;
+                    box-shadow: 0 6px 18px -8px rgba(78,195,205,0.5);
+                }
+                #bot-flow-view .bf-btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+                #bot-flow-view .bf-btn-ghost {
+                    background: #070b2e;
+                    color: #cbd5e1;
+                    border: 1px solid #1e3a5f;
+                    border-radius: 0.75rem;
+                    padding: 0.5rem 0.9rem;
+                    transition: all .15s ease;
+                }
+                #bot-flow-view .bf-btn-ghost:hover { border-color: var(--mit-ink); color: var(--mit-ink); }
+
+                #bot-flow-view .bf-btn-danger {
+                    background: rgba(153,27,27,0.25);
+                    color: #fecaca;
+                    border: 1px solid rgba(220,38,38,0.35);
+                    border-radius: 0.75rem;
+                    padding: 0.5rem 0.75rem;
+                    font-size: 0.78rem;
+                    font-weight: 600;
+                    transition: all .15s ease;
+                }
+                #bot-flow-view .bf-btn-danger:hover {
+                    background: rgba(153,27,27,0.5);
+                    color: #fff;
+                }
+
+                /* Badges */
+                #bot-flow-view .bf-badge-edited {
+                    font-size: 9.5px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    font-weight: 800;
+                    background: linear-gradient(135deg, #713f12 0%, #92400e 100%);
+                    color: #fef3c7;
+                    border: 1px solid rgba(250,204,21,0.5);
+                    border-radius: 999px;
+                    padding: 2px 8px;
+                }
+                #bot-flow-view .bf-badge-type {
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
+                    font-weight: 700;
+                    border-radius: 999px;
+                    padding: 3px 9px;
+                }
+
+                /* Mermaid: esquinas más redondeadas y tipografía mejor */
+                #bot-flow-diagram svg .node rect,
+                #bot-flow-diagram svg .node polygon {
+                    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+                }
+                #bot-flow-diagram svg .node rect { rx: 14; ry: 14; }
+                #bot-flow-diagram svg .edgeLabel {
+                    background-color: #0a1230 !important;
+                    color: #cbd5e1 !important;
+                    border-radius: 6px !important;
+                    padding: 2px 6px !important;
+                }
+                #bot-flow-diagram svg .edgePath path {
+                    stroke-width: 1.8px !important;
+                }
+
+                /* Loader sutil */
+                #bot-flow-view .bf-loader {
+                    width: 1.1rem; height: 1.1rem;
+                    border: 2px solid rgba(78,195,205,0.2);
+                    border-top-color: var(--mit-ink);
+                    border-radius: 50%;
+                    animation: bf-spin 0.8s linear infinite;
+                }
+                @keyframes bf-spin { to { transform: rotate(360deg); } }
+            </style>
+
             <div id="bot-flow-view" class="hidden flex-col w-full min-h-[500px]">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-                    <div>
-                        <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-                            <i class='bx bx-git-branch text-cyan-400'></i> Flujo del Bot de WhatsApp
-                        </h2>
-                        <p class="text-xs sm:text-sm text-gray-400">Lo que el bot dice y los precios que usa. Edita y guarda — el bot aplica el cambio al instante.</p>
-                    </div>
-                    <div class="flex items-center gap-2 text-xs">
-                        <button id="bot-flow-reload" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1e3a5f] bg-[#070b2e] text-gray-300 hover:text-cyan-400 hover:border-cyan-400 transition-all" title="Recargar desde el servidor">
-                            <i class='bx bx-refresh text-base'></i> Recargar
-                        </button>
-                        <button id="bot-flow-reset-all" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-800/60 bg-red-950/30 text-red-300 hover:bg-red-900/50 hover:text-white transition-all" title="Descartar todas las ediciones y volver a los valores de fábrica">
-                            <i class='bx bx-reset text-base'></i> Restaurar fábrica
-                        </button>
+                <!-- Hero -->
+                <div class="bf-hero mb-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
+                                <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[rgba(78,195,205,0.15)] border border-[rgba(78,195,205,0.4)] text-[#4ec3cd]">
+                                    <i class='bx bx-git-branch text-xl'></i>
+                                </span>
+                                Flujo del Bot de WhatsApp
+                            </h2>
+                            <p class="text-xs sm:text-sm text-gray-300 mt-1">Lo que el bot dice y los precios que usa. Edita y guarda — el bot aplica el cambio al instante.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <button id="bot-flow-reload" class="bf-btn-ghost flex items-center gap-1.5" title="Recargar desde el servidor">
+                                <i class='bx bx-refresh text-base'></i> Recargar
+                            </button>
+                            <button id="bot-flow-reset-all" class="bf-btn-danger flex items-center gap-1.5" title="Descartar todas las ediciones y volver a los valores de fábrica">
+                                <i class='bx bx-reset text-base'></i> Restaurar fábrica
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Sub-tabs -->
-                <div id="bot-flow-subtabs" class="flex gap-1 sm:gap-2 border-b border-[#1e3a5f] mb-4 overflow-x-auto no-scrollbar">
-                    <button data-bftab="diagrama" class="bftab px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-cyan-400 transition-all whitespace-nowrap flex items-center gap-1.5"><i class='bx bx-sitemap'></i> Diagrama</button>
-                    <button data-bftab="especialidades" class="bftab px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-cyan-400 transition-all whitespace-nowrap flex items-center gap-1.5"><i class='bx bx-plus-medical'></i> Especialidades</button>
-                    <button data-bftab="procedimientos" class="bftab px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-cyan-400 transition-all whitespace-nowrap flex items-center gap-1.5"><i class='bx bx-shape-circle'></i> Cirugías</button>
-                    <button data-bftab="estudios" class="bftab px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-cyan-400 transition-all whitespace-nowrap flex items-center gap-1.5"><i class='bx bx-test-tube'></i> Estudios</button>
-                    <button data-bftab="laboratorio" class="bftab px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-cyan-400 transition-all whitespace-nowrap flex items-center gap-1.5"><i class='bx bx-droplet'></i> Laboratorio</button>
-                    <button data-bftab="mensajes" class="bftab px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-cyan-400 transition-all whitespace-nowrap flex items-center gap-1.5"><i class='bx bx-message-rounded-dots'></i> Mensajes</button>
-                    <button data-bftab="clinica" class="bftab px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-cyan-400 transition-all whitespace-nowrap flex items-center gap-1.5"><i class='bx bx-map'></i> Clínica</button>
-                    <button data-bftab="promocion" class="bftab px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-cyan-400 transition-all whitespace-nowrap flex items-center gap-1.5"><i class='bx bx-gift'></i> Promoción</button>
+                <!-- Sub-tabs (pill chips) -->
+                <div id="bot-flow-subtabs" class="flex gap-2 mb-4 overflow-x-auto no-scrollbar py-1">
+                    <button data-bftab="diagrama" class="bftab flex items-center gap-1.5"><i class='bx bx-sitemap'></i> Diagrama</button>
+                    <button data-bftab="especialidades" class="bftab flex items-center gap-1.5"><i class='bx bx-plus-medical'></i> Especialidades</button>
+                    <button data-bftab="procedimientos" class="bftab flex items-center gap-1.5"><i class='bx bx-shape-circle'></i> Cirugías</button>
+                    <button data-bftab="estudios" class="bftab flex items-center gap-1.5"><i class='bx bx-test-tube'></i> Estudios</button>
+                    <button data-bftab="laboratorio" class="bftab flex items-center gap-1.5"><i class='bx bx-droplet'></i> Laboratorio</button>
+                    <button data-bftab="mensajes" class="bftab flex items-center gap-1.5"><i class='bx bx-message-rounded-dots'></i> Mensajes</button>
+                    <button data-bftab="clinica" class="bftab flex items-center gap-1.5"><i class='bx bx-map'></i> Clínica</button>
+                    <button data-bftab="promocion" class="bftab flex items-center gap-1.5"><i class='bx bx-gift'></i> Promoción</button>
                 </div>
 
                 <!-- Contenido del tab activo -->
                 <div id="bot-flow-tab-content" class="min-h-[500px]">
-                    <div class="flex items-center justify-center h-64 text-gray-500 text-sm">
-                        <div class="flex items-center gap-2"><div class="loader"></div> Cargando...</div>
+                    <div class="flex items-center justify-center h-64 text-gray-400 text-sm">
+                        <div class="flex items-center gap-2"><div class="bf-loader"></div> Cargando...</div>
                     </div>
                 </div>
             </div>
@@ -1591,7 +1768,7 @@
     <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
     <script src="/js/app.js?v=19"></script>
     <script src="/js/parrilla.js?v=17"></script>
-    <script src="/js/botFlow.js?v=3"></script>
+    <script src="/js/botFlow.js?v=4"></script>
     <script>
     fetch('/api/features').then(r=>r.json()).then(f=>{
         document.querySelectorAll('[data-feature]').forEach(el=>{

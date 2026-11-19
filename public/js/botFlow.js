@@ -85,10 +85,7 @@
     function renderTabs() {
         document.querySelectorAll('.bftab').forEach(b => {
             const isActive = b.dataset.bftab === activeTab;
-            b.classList.toggle('text-cyan-400', isActive);
-            b.classList.toggle('border-cyan-400', isActive);
-            b.classList.toggle('text-gray-400', !isActive);
-            b.classList.toggle('border-transparent', !isActive);
+            b.classList.toggle('active', isActive);
         });
     }
 
@@ -174,24 +171,27 @@
     }
 
     async function renderDiagramTab(container) {
+        const legend = [
+            { c: '#1e3a8a', t: 'Inicio' },
+            { c: '#0e4a60', t: 'Menú' },
+            { c: '#064e3b', t: 'Info' },
+            { c: '#713f12', t: 'Captura' },
+            { c: '#166534', t: 'Cierre venta' },
+            { c: '#334155', t: 'Cierre frío' },
+            { c: '#4c1d95', t: 'Escalar' },
+            { c: '#991b1b', t: 'Alerta' },
+        ];
         container.innerHTML = `
-            <div class="bg-[#0a1230] border border-[#1e3a5f] rounded-xl p-3 sm:p-4">
+            <div class="bf-panel p-4 sm:p-5">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                    <div class="flex flex-wrap items-center gap-2 text-[10px] sm:text-xs">
-                        <span class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0e1555] border border-[#1e3a5f]"><span class="w-3 h-3 rounded-sm" style="background:#1e40af"></span> Inicio</span>
-                        <span class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0e1555] border border-[#1e3a5f]"><span class="w-3 h-3 rounded-sm" style="background:#0ea5e9"></span> Menú</span>
-                        <span class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0e1555] border border-[#1e3a5f]"><span class="w-3 h-3 rounded-sm" style="background:#10b981"></span> Info</span>
-                        <span class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0e1555] border border-[#1e3a5f]"><span class="w-3 h-3 rounded-sm" style="background:#eab308"></span> Captura</span>
-                        <span class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0e1555] border border-[#1e3a5f]"><span class="w-3 h-3 rounded-sm" style="background:#22c55e"></span> Cierre venta</span>
-                        <span class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0e1555] border border-[#1e3a5f]"><span class="w-3 h-3 rounded-sm" style="background:#64748b"></span> Cierre frío</span>
-                        <span class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0e1555] border border-[#1e3a5f]"><span class="w-3 h-3 rounded-sm" style="background:#a855f7"></span> Escalar</span>
-                        <span class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#0e1555] border border-[#1e3a5f]"><span class="w-3 h-3 rounded-sm" style="background:#ef4444"></span> Alerta</span>
+                    <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+                        ${legend.map(l => `<span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#050820] border border-[#1e3a5f] text-gray-300"><span class="w-2.5 h-2.5 rounded-full" style="background:${l.c}"></span>${l.t}</span>`).join('')}
                     </div>
-                    <div class="text-[11px] text-gray-500 flex items-center gap-1.5">
-                        <i class='bx bx-mouse-alt text-base'></i> Click en un nodo para ver lo que dice el bot — arrastra para mover el diagrama
+                    <div class="text-[11px] text-gray-400 flex items-center gap-1.5 bg-[rgba(78,195,205,0.08)] border border-[rgba(78,195,205,0.25)] rounded-full px-3 py-1">
+                        <i class='bx bx-mouse-alt text-base text-[#4ec3cd]'></i> Click en un nodo — arrastra para mover
                     </div>
                 </div>
-                <div id="bot-flow-diagram-wrap" class="bg-[#050820] rounded-lg border border-[#1e3a5f]/60 p-4 overflow-auto custom-scrollbar select-none cursor-grab" style="max-height:72vh;">
+                <div id="bot-flow-diagram-wrap" class="bg-[#050820] rounded-xl border border-[#1e3a5f] p-5 overflow-auto custom-scrollbar select-none cursor-grab" style="max-height:72vh;">
                     <div id="bot-flow-diagram" class="min-w-fit"></div>
                 </div>
             </div>
@@ -244,14 +244,15 @@
             lines.push(`${a.from} -->|${edgeLabel(a.label)}| ${a.to}`);
         }
 
-        lines.push(`classDef tipo_inicio fill:#1e40af,stroke:#60a5fa,color:#fff,stroke-width:2px`);
-        lines.push(`classDef tipo_menu fill:#0ea5e9,stroke:#38bdf8,color:#fff,stroke-width:2px`);
-        lines.push(`classDef tipo_info fill:#10b981,stroke:#34d399,color:#042f2e,stroke-width:2px`);
-        lines.push(`classDef tipo_captura fill:#eab308,stroke:#fde047,color:#422006,stroke-width:2px`);
-        lines.push(`classDef tipo_cierre fill:#22c55e,stroke:#4ade80,color:#052e16,stroke-width:2px`);
-        lines.push(`classDef tipo_cierre_frio fill:#64748b,stroke:#94a3b8,color:#fff,stroke-width:2px`);
-        lines.push(`classDef tipo_escalar fill:#a855f7,stroke:#c084fc,color:#fff,stroke-width:2px`);
-        lines.push(`classDef tipo_alerta fill:#ef4444,stroke:#fca5a5,color:#fff,stroke-width:2px`);
+        // Paleta MIT: navy base + teal #4ec3cd como acento de marca
+        lines.push(`classDef tipo_inicio fill:#1e3a8a,stroke:#4ec3cd,color:#fff,stroke-width:2.5px`);
+        lines.push(`classDef tipo_menu fill:#0e4a60,stroke:#4ec3cd,color:#e0f7fa,stroke-width:2.5px`);
+        lines.push(`classDef tipo_info fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:2.5px`);
+        lines.push(`classDef tipo_captura fill:#713f12,stroke:#fbbf24,color:#fef3c7,stroke-width:2.5px`);
+        lines.push(`classDef tipo_cierre fill:#166534,stroke:#4ade80,color:#dcfce7,stroke-width:2.5px`);
+        lines.push(`classDef tipo_cierre_frio fill:#334155,stroke:#94a3b8,color:#e2e8f0,stroke-width:2.5px`);
+        lines.push(`classDef tipo_escalar fill:#4c1d95,stroke:#a78bfa,color:#ede9fe,stroke-width:2.5px`);
+        lines.push(`classDef tipo_alerta fill:#991b1b,stroke:#fca5a5,color:#fee2e2,stroke-width:2.5px`);
         return lines.join('\n');
     }
 
@@ -321,34 +322,35 @@
         overlay.id = 'bf-node-modal';
         overlay.className = 'fixed inset-0 modal-overlay z-50 flex items-center justify-center p-3';
         overlay.innerHTML = `
-            <div class="panel w-full max-w-2xl p-5 relative max-h-[90vh] flex flex-col bg-[#0a1230] border border-[#1e3a5f] rounded-xl shadow-2xl">
-                <div class="flex items-start justify-between pb-3 mb-3 border-b border-[#1e3a5f]">
+            <div class="w-full max-w-2xl p-5 sm:p-6 relative max-h-[90vh] flex flex-col" style="background: linear-gradient(180deg, #0a1230 0%, #080e26 100%); border: 1px solid rgba(78,195,205,0.3); border-radius: 1.25rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), 0 0 0 1px rgba(78,195,205,0.1);">
+                <div class="flex items-start justify-between pb-4 mb-4 border-b border-[#1e3a5f]">
                     <div class="min-w-0 pr-3">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs uppercase tracking-wider font-bold px-2 py-0.5 rounded bg-${badgeColor(node.tipo)}/20 text-${badgeColor(node.tipo)} border border-${badgeColor(node.tipo)}/40">${nodeTypeLabel(node.tipo)}</span>
-                            <span class="text-[10px] font-mono text-gray-500">step ${node.step}</span>
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="bf-badge-type" style="background: ${badgeBg(node.tipo)}; color: ${badgeFg(node.tipo)}; border: 1px solid ${badgeBorder(node.tipo)};">${nodeTypeLabel(node.tipo)}</span>
+                            <span class="text-[10px] font-mono text-gray-500 bg-[#050820] border border-[#1e3a5f] rounded px-1.5 py-0.5">step ${node.step}</span>
                         </div>
-                        <h3 class="text-lg font-bold text-white">${esc(node.titulo)}</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-white">${esc(node.titulo)}</h3>
                     </div>
-                    <button id="bf-modal-close" class="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800"><i class='bx bx-x text-2xl'></i></button>
+                    <button id="bf-modal-close" class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-[#050820] transition-colors"><i class='bx bx-x text-2xl'></i></button>
                 </div>
                 <div class="flex-grow overflow-y-auto custom-scrollbar pr-1 space-y-3">
                     <div>
-                        <div class="text-[11px] uppercase tracking-wider text-gray-500 font-bold mb-1">
-                            ${fixedText ? '💬 Texto que envía el bot (editable)' : dynamicText ? '💬 Texto que envía el bot (generado dinámicamente)' : 'Descripción'}
+                        <div class="text-[11px] uppercase tracking-wider text-[#4ec3cd] font-bold mb-2 flex items-center gap-1.5">
+                            <i class='bx ${fixedText ? 'bx-chat' : dynamicText ? 'bx-code-alt' : 'bx-info-circle'}'></i>
+                            ${fixedText ? 'Texto que envía el bot (editable)' : dynamicText ? 'Texto que envía el bot (generado dinámicamente)' : 'Descripción'}
                         </div>
-                        <div class="bg-[#070b2e] border border-[#1e3a5f] rounded-md p-4 text-sm text-gray-200 whitespace-pre-wrap font-mono leading-relaxed" style="max-height:50vh;overflow:auto;">${esc(bodyText)}</div>
+                        <div class="bg-[#050820] border border-[#1e3a5f] rounded-xl p-4 text-sm text-gray-200 whitespace-pre-wrap font-mono leading-relaxed" style="max-height:50vh;overflow:auto;">${esc(bodyText)}</div>
                     </div>
                     ${!editable && dynamicText ? `
-                        <div class="bg-cyan-950/30 border border-cyan-800/50 rounded-md p-3 text-xs text-cyan-200">
-                            <i class='bx bx-info-circle mr-1'></i>
-                            Este texto se construye con los datos del catálogo. Para cambiarlo, edita las especialidades, cirugías, estudios, laboratorio, clínica o promoción desde sus pestañas.
+                        <div class="rounded-xl p-3 text-xs flex items-start gap-2" style="background: rgba(78,195,205,0.08); border: 1px solid rgba(78,195,205,0.25); color: #a5f3fc;">
+                            <i class='bx bx-info-circle text-base shrink-0 mt-0.5 text-[#4ec3cd]'></i>
+                            <span>Este texto se construye con los datos del catálogo. Para cambiarlo, edita las especialidades, cirugías, estudios, laboratorio, clínica o promoción desde sus pestañas.</span>
                         </div>
                     ` : ''}
                 </div>
-                <div class="pt-3 mt-3 border-t border-[#1e3a5f] flex items-center gap-2">
-                    ${editable ? `<button id="bf-modal-edit" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2 rounded-md text-sm transition-colors flex items-center justify-center gap-2"><i class='bx bx-edit'></i> Editar este mensaje</button>` : ''}
-                    <button id="bf-modal-dismiss" class="${editable ? 'px-4' : 'flex-1'} py-2 border border-[#1e3a5f] text-gray-300 hover:bg-[#0e1555] rounded-md text-sm font-semibold transition-colors">Cerrar</button>
+                <div class="pt-4 mt-4 border-t border-[#1e3a5f] flex items-center gap-2">
+                    ${editable ? `<button id="bf-modal-edit" class="bf-btn-primary flex-1 flex items-center justify-center gap-2"><i class='bx bx-edit'></i> Editar este mensaje</button>` : ''}
+                    <button id="bf-modal-dismiss" class="bf-btn-ghost ${editable ? 'px-5' : 'flex-1'}">Cerrar</button>
                 </div>
             </div>
         `;
@@ -373,12 +375,20 @@
         });
     }
 
-    function badgeColor(tipo) {
-        return {
-            inicio: 'blue-400', menu: 'cyan-400', info: 'emerald-400', captura: 'yellow-400',
-            cierre: 'green-400', cierre_frio: 'gray-400', escalar: 'purple-400', alerta: 'red-400',
-        }[tipo] || 'gray-400';
-    }
+    // Paleta de badges del modal (match con la paleta Mermaid)
+    const BADGE = {
+        inicio:      { bg: 'rgba(30,58,138,0.25)',  fg: '#93c5fd', bd: 'rgba(78,195,205,0.4)' },
+        menu:        { bg: 'rgba(14,74,96,0.35)',   fg: '#67e8f9', bd: 'rgba(78,195,205,0.5)' },
+        info:        { bg: 'rgba(6,78,59,0.3)',     fg: '#6ee7b7', bd: 'rgba(52,211,153,0.4)' },
+        captura:     { bg: 'rgba(113,63,18,0.3)',   fg: '#fcd34d', bd: 'rgba(251,191,36,0.4)' },
+        cierre:      { bg: 'rgba(22,101,52,0.3)',   fg: '#86efac', bd: 'rgba(74,222,128,0.4)' },
+        cierre_frio: { bg: 'rgba(51,65,85,0.5)',    fg: '#cbd5e1', bd: 'rgba(148,163,184,0.4)' },
+        escalar:     { bg: 'rgba(76,29,149,0.3)',   fg: '#c4b5fd', bd: 'rgba(167,139,250,0.4)' },
+        alerta:      { bg: 'rgba(153,27,27,0.3)',   fg: '#fca5a5', bd: 'rgba(252,165,165,0.4)' },
+    };
+    function badgeBg(t)     { return (BADGE[t] || BADGE.cierre_frio).bg; }
+    function badgeFg(t)     { return (BADGE[t] || BADGE.cierre_frio).fg; }
+    function badgeBorder(t) { return (BADGE[t] || BADGE.cierre_frio).bd; }
     function nodeTypeLabel(tipo) {
         return {
             inicio: 'Inicio', menu: 'Menú', info: 'Info', captura: 'Captura de datos',
@@ -441,9 +451,14 @@
         const t = titleMap[tipo];
 
         container.innerHTML = `
-            <div class="mb-3">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class='bx ${t.icon} text-cyan-400'></i> ${t.title}</h3>
-                <p class="text-xs text-gray-400 mt-0.5">${t.hint} Click en una tarjeta para editarla.</p>
+            <div class="mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2.5">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[rgba(78,195,205,0.15)] border border-[rgba(78,195,205,0.35)] text-[#4ec3cd]">
+                        <i class='bx ${t.icon} text-lg'></i>
+                    </span>
+                    ${t.title}
+                </h3>
+                <p class="text-xs text-gray-400 mt-1 ml-11">${t.hint} Click en una tarjeta para editarla.</p>
             </div>
             <div id="bf-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
         `;
@@ -457,53 +472,52 @@
             const isExpanded = expandedCardId === `${tipo}:${item.id}`;
 
             const card = document.createElement('div');
-            card.className = `bg-[#0a1230] border rounded-xl overflow-hidden transition-all ${isExpanded ? 'border-cyan-400 shadow-[0_0_0_1px_rgba(34,211,238,0.3)]' : 'border-[#1e3a5f] hover:border-[#4ec3cd]/50'}`;
+            card.className = `bf-card overflow-hidden ${isExpanded ? 'active' : ''}`;
 
-            // Header de la tarjeta (siempre visible)
             const headerHtml = `
-                <button type="button" class="bf-card-head w-full text-left p-3 sm:p-4 flex items-start justify-between gap-2 cursor-pointer hover:bg-[#0e1555]/50 transition-colors">
+                <button type="button" class="bf-card-head w-full text-left p-4 flex items-start justify-between gap-2 cursor-pointer transition-colors">
                     <div class="min-w-0 flex-1">
-                        <div class="flex items-center gap-2 mb-1">
+                        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
                             <span class="text-xl leading-none">${esc(emoji)}</span>
                             <span class="font-semibold text-white truncate">${esc(nombre)}</span>
-                            ${edited ? '<span class="text-[9px] uppercase font-bold tracking-wider bg-yellow-950/60 text-yellow-300 border border-yellow-800 rounded px-1.5 py-0.5">editado</span>' : ''}
+                            ${edited ? '<span class="bf-badge-edited">editado</span>' : ''}
                         </div>
-                        <div class="text-xs text-gray-400 flex items-center gap-3 flex-wrap">
+                        <div class="text-xs text-gray-300 flex items-center gap-3 flex-wrap">
                             ${priceBadge(item, tipo)}
-                            ${item.horario ? `<span class="flex items-center gap-1"><i class='bx bx-time'></i> ${esc(item.horario)}</span>` : ''}
-                            ${item.area ? `<span class="text-[10px] uppercase tracking-wider bg-[#0e1555] border border-[#1e3a5f] rounded px-1.5 py-0.5">${esc(item.area)}</span>` : ''}
+                            ${item.horario ? `<span class="flex items-center gap-1 text-gray-400"><i class='bx bx-time text-sm'></i> ${esc(item.horario)}</span>` : ''}
+                            ${item.area ? `<span class="text-[10px] uppercase tracking-wider bg-[rgba(78,195,205,0.1)] border border-[rgba(78,195,205,0.3)] text-[#4ec3cd] rounded-full px-2 py-0.5">${esc(item.area)}</span>` : ''}
                         </div>
                     </div>
-                    <i class='bx ${isExpanded ? 'bx-chevron-up' : 'bx-chevron-down'} text-xl text-gray-400 shrink-0'></i>
+                    <i class='bx ${isExpanded ? 'bx-chevron-up' : 'bx-chevron-down'} text-xl text-[#4ec3cd] shrink-0'></i>
                 </button>
             `;
 
             let editorHtml = '';
             if (isExpanded) {
                 editorHtml = `
-                    <div class="border-t border-[#1e3a5f] bg-[#070b2e]/60 p-3 sm:p-4 space-y-3">
+                    <div class="border-t border-[#1e3a5f] bg-[#050820]/50 p-4 space-y-3">
                         ${fields.map(f => {
                             const val = item[f.k] == null ? '' : item[f.k];
                             const defVal = def[f.k] == null ? '—' : def[f.k];
                             const input = f.type === 'textarea'
-                                ? `<textarea data-k="${f.k}" rows="2" class="w-full bg-[#050820] border border-[#1e3a5f] rounded-md px-2 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-cyan-400">${esc(val)}</textarea>`
-                                : `<input data-k="${f.k}" type="${f.type}" value="${esc(val)}" class="w-full bg-[#050820] border border-[#1e3a5f] rounded-md px-2 py-1.5 text-sm text-gray-200 focus:outline-none focus:border-cyan-400">`;
+                                ? `<textarea data-k="${f.k}" rows="2" class="bf-input">${esc(val)}</textarea>`
+                                : `<input data-k="${f.k}" type="${f.type}" value="${esc(val)}" class="bf-input">`;
                             return `
                                 <div>
-                                    <div class="flex items-baseline justify-between mb-1">
-                                        <label class="text-[11px] uppercase tracking-wider text-gray-400 font-bold">${esc(f.label)}</label>
-                                        <span class="text-[10px] text-gray-500" title="Valor de fábrica">fábrica: ${esc(defVal)}</span>
+                                    <div class="flex items-baseline justify-between mb-1.5">
+                                        <label class="text-[11px] uppercase tracking-wider text-gray-300 font-bold">${esc(f.label)}</label>
+                                        <span class="text-[10px] text-gray-500 font-mono" title="Valor de fábrica">fábrica: ${esc(defVal)}</span>
                                     </div>
                                     ${input}
-                                    ${f.hint ? `<p class="text-[10px] text-gray-500 mt-0.5">${esc(f.hint)}</p>` : ''}
+                                    ${f.hint ? `<p class="text-[10px] text-gray-500 mt-1">${esc(f.hint)}</p>` : ''}
                                 </div>
                             `;
                         }).join('')}
                         <div class="flex items-center gap-2 pt-2">
-                            <button class="bf-save flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2 rounded-md text-sm transition-colors flex items-center justify-center gap-2">
-                                <i class='bx bx-save'></i> Guardar
+                            <button class="bf-save bf-btn-primary flex-1 flex items-center justify-center gap-2">
+                                <i class='bx bx-save'></i> Guardar cambios
                             </button>
-                            ${edited ? `<button class="bf-reset px-3 py-2 border border-red-800/60 bg-red-950/30 text-red-300 hover:bg-red-900/50 rounded-md text-xs font-semibold transition-colors" title="Restaurar fábrica"><i class='bx bx-reset'></i> Fábrica</button>` : ''}
+                            ${edited ? `<button class="bf-reset bf-btn-danger flex items-center gap-1.5" title="Restaurar fábrica"><i class='bx bx-reset'></i> Fábrica</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -556,9 +570,14 @@
         ];
 
         container.innerHTML = `
-            <div class="mb-3">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class='bx bx-message-rounded-dots text-cyan-400'></i> Mensajes del bot</h3>
-                <p class="text-xs text-gray-400 mt-0.5">Los textos exactos que envía el bot. Formato WhatsApp: *negrita*, _cursiva_. Enter = salto de línea.</p>
+            <div class="mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2.5">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[rgba(78,195,205,0.15)] border border-[rgba(78,195,205,0.35)] text-[#4ec3cd]">
+                        <i class='bx bx-message-rounded-dots text-lg'></i>
+                    </span>
+                    Mensajes del bot
+                </h3>
+                <p class="text-xs text-gray-400 mt-1 ml-11">Los textos exactos que envía el bot. Formato WhatsApp: *negrita*, _cursiva_. Enter = salto de línea.</p>
             </div>
             <div id="bf-msgs" class="space-y-3"></div>
         `;
@@ -571,39 +590,39 @@
             const isExpanded = expandedCardId === `mensaje:${m.k}`;
 
             const card = document.createElement('div');
-            card.className = `bg-[#0a1230] border rounded-xl overflow-hidden transition-all ${isExpanded ? 'border-cyan-400' : 'border-[#1e3a5f] hover:border-[#4ec3cd]/50'}`;
+            card.className = `bf-card overflow-hidden ${isExpanded ? 'active' : ''}`;
 
-            const preview = current.length > 120 ? current.slice(0, 120) + '…' : current;
+            const preview = current.length > 140 ? current.slice(0, 140) + '…' : current;
             card.innerHTML = `
-                <button type="button" class="bf-card-head w-full text-left p-3 sm:p-4 flex items-start justify-between gap-2 hover:bg-[#0e1555]/50 transition-colors">
+                <button type="button" class="bf-card-head w-full text-left p-4 flex items-start justify-between gap-2 transition-colors">
                     <div class="min-w-0 flex-1">
-                        <div class="flex items-center gap-2 mb-1">
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
                             <span class="font-semibold text-white">${esc(m.titulo)}</span>
-                            ${edited ? '<span class="text-[9px] uppercase font-bold tracking-wider bg-yellow-950/60 text-yellow-300 border border-yellow-800 rounded px-1.5 py-0.5">editado</span>' : ''}
-                            <span class="text-[10px] font-mono text-gray-500">${esc(m.k)}</span>
+                            ${edited ? '<span class="bf-badge-edited">editado</span>' : ''}
+                            <span class="text-[10px] font-mono text-gray-500 bg-[#050820] border border-[#1e3a5f] rounded px-1.5 py-0.5">${esc(m.k)}</span>
                         </div>
                         <p class="text-xs text-gray-400 mb-2">${esc(m.desc)}</p>
-                        <div class="text-sm text-gray-300 bg-[#070b2e] border border-[#1e3a5f] rounded p-2 whitespace-pre-wrap">${esc(preview)}</div>
+                        <div class="text-sm text-gray-200 bg-[#050820] border border-[#1e3a5f] rounded-lg p-3 whitespace-pre-wrap leading-relaxed">${esc(preview)}</div>
                     </div>
-                    <i class='bx ${isExpanded ? 'bx-chevron-up' : 'bx-chevron-down'} text-xl text-gray-400 shrink-0'></i>
+                    <i class='bx ${isExpanded ? 'bx-chevron-up' : 'bx-chevron-down'} text-xl text-[#4ec3cd] shrink-0'></i>
                 </button>
                 ${isExpanded ? `
-                    <div class="border-t border-[#1e3a5f] bg-[#070b2e]/60 p-3 sm:p-4 space-y-3">
+                    <div class="border-t border-[#1e3a5f] bg-[#050820]/50 p-4 space-y-3">
                         <div>
-                            <label class="text-[11px] uppercase tracking-wider text-gray-400 font-bold">Texto exacto que envía el bot</label>
-                            <textarea class="bf-msg-text mt-1 w-full bg-[#050820] border border-[#1e3a5f] rounded-md p-3 text-sm text-gray-200 focus:outline-none focus:border-cyan-400 font-mono" rows="8">${esc(current)}</textarea>
+                            <label class="text-[11px] uppercase tracking-wider text-gray-300 font-bold">Texto exacto que envía el bot</label>
+                            <textarea class="bf-msg-text bf-input mt-1.5 font-mono leading-relaxed" rows="8">${esc(current)}</textarea>
                         </div>
                         ${edited ? `
                         <details class="text-xs">
-                            <summary class="text-gray-500 cursor-pointer hover:text-gray-300">Ver texto de fábrica</summary>
-                            <pre class="mt-2 bg-black/40 border border-[#1e3a5f] rounded p-2 text-gray-400 whitespace-pre-wrap text-xs">${esc(def)}</pre>
+                            <summary class="text-gray-400 cursor-pointer hover:text-[#4ec3cd]">Ver texto de fábrica</summary>
+                            <pre class="mt-2 bg-black/40 border border-[#1e3a5f] rounded-lg p-3 text-gray-400 whitespace-pre-wrap text-xs leading-relaxed">${esc(def)}</pre>
                         </details>
                         ` : ''}
                         <div class="flex items-center gap-2 pt-1">
-                            <button class="bf-save flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2 rounded-md text-sm transition-colors flex items-center justify-center gap-2">
-                                <i class='bx bx-save'></i> Guardar
+                            <button class="bf-save bf-btn-primary flex-1 flex items-center justify-center gap-2">
+                                <i class='bx bx-save'></i> Guardar mensaje
                             </button>
-                            ${edited ? `<button class="bf-reset px-3 py-2 border border-red-800/60 bg-red-950/30 text-red-300 hover:bg-red-900/50 rounded-md text-xs font-semibold transition-colors"><i class='bx bx-reset'></i> Fábrica</button>` : ''}
+                            ${edited ? `<button class="bf-reset bf-btn-danger flex items-center gap-1.5"><i class='bx bx-reset'></i> Fábrica</button>` : ''}
                         </div>
                     </div>
                 ` : ''}
@@ -643,23 +662,28 @@
         ];
         const edited = fields.some(f => c[f.k] !== def[f.k]);
         container.innerHTML = `
-            <div class="mb-3">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class='bx bx-map text-cyan-400'></i> Datos de la clínica</h3>
-                <p class="text-xs text-gray-400 mt-0.5">Información que el bot envía cuando el cliente elige "Ubicación y horarios".</p>
+            <div class="mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2.5">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[rgba(78,195,205,0.15)] border border-[rgba(78,195,205,0.35)] text-[#4ec3cd]">
+                        <i class='bx bx-map text-lg'></i>
+                    </span>
+                    Datos de la clínica
+                </h3>
+                <p class="text-xs text-gray-400 mt-1 ml-11">Información que el bot envía cuando el cliente elige "Ubicación y horarios".</p>
             </div>
-            <div class="bg-[#0a1230] border border-[#1e3a5f] rounded-xl p-4 sm:p-5 space-y-3 max-w-2xl">
-                ${edited ? '<div class="bg-yellow-950/30 border border-yellow-800/50 rounded-md p-2 text-xs text-yellow-200"><i class="bx bx-edit mr-1"></i>Hay campos editados.</div>' : ''}
+            <div class="bf-panel p-5 sm:p-6 space-y-4 max-w-2xl">
+                ${edited ? '<div class="bg-amber-950/30 border border-amber-800/60 rounded-lg px-3 py-2 text-xs text-amber-200 flex items-center gap-2"><i class="bx bx-edit"></i> Hay campos editados.</div>' : ''}
                 ${fields.map(f => `
                     <div>
-                        <label class="text-[11px] uppercase tracking-wider text-gray-400 font-bold">${esc(f.label)}</label>
-                        <input data-k="${f.k}" type="text" value="${esc(c[f.k] || '')}" class="mt-1 w-full bg-[#050820] border border-[#1e3a5f] rounded-md px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-cyan-400">
+                        <label class="text-[11px] uppercase tracking-wider text-gray-300 font-bold">${esc(f.label)}</label>
+                        <input data-k="${f.k}" type="text" value="${esc(c[f.k] || '')}" class="bf-input mt-1.5">
                     </div>
                 `).join('')}
-                <div class="flex items-center gap-2 pt-2">
-                    <button id="bf-clinica-save" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2 rounded-md text-sm transition-colors flex items-center justify-center gap-2">
+                <div class="flex items-center gap-2 pt-2 border-t border-[#1e3a5f]">
+                    <button id="bf-clinica-save" class="bf-btn-primary flex-1 flex items-center justify-center gap-2">
                         <i class='bx bx-save'></i> Guardar cambios
                     </button>
-                    ${edited ? `<button id="bf-clinica-reset" class="px-3 py-2 border border-red-800/60 bg-red-950/30 text-red-300 hover:bg-red-900/50 rounded-md text-xs font-semibold transition-colors"><i class='bx bx-reset'></i> Fábrica</button>` : ''}
+                    ${edited ? `<button id="bf-clinica-reset" class="bf-btn-danger flex items-center gap-1.5"><i class='bx bx-reset'></i> Fábrica</button>` : ''}
                 </div>
             </div>
         `;
@@ -682,35 +706,40 @@
         const activa = flowData.promocion_activa && flowData.promocion_activa.activa;
 
         container.innerHTML = `
-            <div class="mb-3">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class='bx bx-gift text-cyan-400'></i> Promoción vigente</h3>
-                <p class="text-xs text-gray-400 mt-0.5">El bot muestra este mensaje adicional cuando el cliente pregunta por el procedimiento al que aplica la promo.</p>
+            <div class="mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2.5">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[rgba(78,195,205,0.15)] border border-[rgba(78,195,205,0.35)] text-[#4ec3cd]">
+                        <i class='bx bx-gift text-lg'></i>
+                    </span>
+                    Promoción vigente
+                </h3>
+                <p class="text-xs text-gray-400 mt-1 ml-11">El bot muestra este mensaje adicional cuando el cliente pregunta por el procedimiento al que aplica.</p>
             </div>
-            <div class="bg-[#0a1230] border border-[#1e3a5f] rounded-xl p-4 sm:p-5 space-y-3 max-w-2xl">
-                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold ${activa ? 'bg-green-950/50 text-green-300 border border-green-800' : 'bg-gray-900 text-gray-400 border border-gray-700'}">
-                    <span class="w-2 h-2 rounded-full ${activa ? 'bg-green-400 animate-pulse' : 'bg-gray-500'}"></span>
+            <div class="bf-panel p-5 sm:p-6 space-y-4 max-w-2xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${activa ? 'bg-emerald-950/50 text-emerald-300 border border-emerald-700' : 'bg-slate-900/80 text-slate-400 border border-slate-700'}">
+                    <span class="w-2 h-2 rounded-full ${activa ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}"></span>
                     ${activa ? 'ACTIVA — el bot la está mostrando' : 'EXPIRADA — el bot no la muestra'}
                 </div>
-                ${edited ? '<div class="bg-yellow-950/30 border border-yellow-800/50 rounded-md p-2 text-xs text-yellow-200"><i class="bx bx-edit mr-1"></i>Promoción editada.</div>' : ''}
+                ${edited ? '<div class="bg-amber-950/30 border border-amber-800/60 rounded-lg px-3 py-2 text-xs text-amber-200 flex items-center gap-2"><i class="bx bx-edit"></i> Promoción editada.</div>' : ''}
                 <div>
-                    <label class="text-[11px] uppercase tracking-wider text-gray-400 font-bold">Vigente hasta</label>
-                    <input data-k="activa_hasta" type="text" value="${esc(p.activa_hasta || '')}" class="mt-1 w-full bg-[#050820] border border-[#1e3a5f] rounded-md px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-cyan-400" placeholder="2026-11-30T23:59:59">
-                    <p class="text-[10px] text-gray-500 mt-0.5">Formato ISO: YYYY-MM-DDTHH:MM:SS</p>
+                    <label class="text-[11px] uppercase tracking-wider text-gray-300 font-bold">Vigente hasta</label>
+                    <input data-k="activa_hasta" type="text" value="${esc(p.activa_hasta || '')}" class="bf-input mt-1.5" placeholder="2026-11-30T23:59:59">
+                    <p class="text-[10px] text-gray-500 mt-1">Formato ISO: YYYY-MM-DDTHH:MM:SS</p>
                 </div>
                 <div>
-                    <label class="text-[11px] uppercase tracking-wider text-gray-400 font-bold">Texto que envía el bot</label>
-                    <textarea data-k="texto" rows="4" class="mt-1 w-full bg-[#050820] border border-[#1e3a5f] rounded-md p-3 text-sm text-gray-200 focus:outline-none focus:border-cyan-400 font-mono">${esc(p.texto || '')}</textarea>
+                    <label class="text-[11px] uppercase tracking-wider text-gray-300 font-bold">Texto que envía el bot</label>
+                    <textarea data-k="texto" rows="4" class="bf-input mt-1.5 font-mono leading-relaxed">${esc(p.texto || '')}</textarea>
                 </div>
                 <div>
-                    <label class="text-[11px] uppercase tracking-wider text-gray-400 font-bold">ID del procedimiento al que aplica</label>
-                    <input data-k="aplica_a_procedimiento_id" type="text" value="${esc(p.aplica_a_procedimiento_id || '')}" class="mt-1 w-full bg-[#050820] border border-[#1e3a5f] rounded-md px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-cyan-400" placeholder="orquidopexia">
-                    <p class="text-[10px] text-gray-500 mt-0.5">Ej: orquidopexia, rinoplastia, mommy_makeover, etc.</p>
+                    <label class="text-[11px] uppercase tracking-wider text-gray-300 font-bold">ID del procedimiento al que aplica</label>
+                    <input data-k="aplica_a_procedimiento_id" type="text" value="${esc(p.aplica_a_procedimiento_id || '')}" class="bf-input mt-1.5" placeholder="orquidopexia">
+                    <p class="text-[10px] text-gray-500 mt-1">Ej: orquidopexia, rinoplastia, mommy_makeover, etc.</p>
                 </div>
-                <div class="flex items-center gap-2 pt-2">
-                    <button id="bf-promo-save" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2 rounded-md text-sm transition-colors flex items-center justify-center gap-2">
+                <div class="flex items-center gap-2 pt-2 border-t border-[#1e3a5f]">
+                    <button id="bf-promo-save" class="bf-btn-primary flex-1 flex items-center justify-center gap-2">
                         <i class='bx bx-save'></i> Guardar promoción
                     </button>
-                    ${edited ? `<button id="bf-promo-reset" class="px-3 py-2 border border-red-800/60 bg-red-950/30 text-red-300 hover:bg-red-900/50 rounded-md text-xs font-semibold transition-colors"><i class='bx bx-reset'></i> Fábrica</button>` : ''}
+                    ${edited ? `<button id="bf-promo-reset" class="bf-btn-danger flex items-center gap-1.5"><i class='bx bx-reset'></i> Fábrica</button>` : ''}
                 </div>
             </div>
         `;
