@@ -243,6 +243,24 @@ server.listen(PORT, async () => {
             }
         }
 
+        // Cargar overrides del catálogo MIT (precios, horarios, mensajes editados desde el CRM)
+        try {
+            const botCatalog = require('./config/botCatalog');
+            const [overrideRows] = await query("SELECT value FROM bot_settings WHERE key = 'flow_mit_overrides'");
+            if (overrideRows.length === 0) {
+                await query("INSERT INTO bot_settings (key, value) VALUES ('flow_mit_overrides', $1)", ['{}']);
+                console.log('[DB] Overrides del flujo MIT inicializados (vacío → defaults del catálogo)');
+            } else {
+                let overrides = overrideRows[0].value;
+                if (typeof overrides === 'string') try { overrides = JSON.parse(overrides); } catch(e) { overrides = {}; }
+                botCatalog.applyOverrides(overrides);
+                const keys = Object.keys(overrides || {});
+                if (keys.length > 0) console.log(`[DB] Overrides del flujo MIT aplicados: ${keys.join(', ')}`);
+            }
+        } catch (ovErr) {
+            console.error('[DB] Error aplicando overrides del flujo MIT:', ovErr.message);
+        }
+
         console.log('[DB] Migracion completada');
     } catch (dbErr) {
         console.error('[DB] Error en migracion:', dbErr.message);

@@ -123,6 +123,12 @@ router.get('/bot/logs', isAuthenticated, (req, res) => {
     res.json(global.botLogs || []);
 });
 
+// Flujo MIT (diagrama + editor de nodos)
+const { getFlowMit, updateFlowNode, resetFlowNode } = require('../controllers/botFlowMitController');
+router.get('/bot/flow-mit', isAuthenticated, getFlowMit);
+router.put('/bot/flow-mit/node', isAuthenticated, isAdmin, updateFlowNode);
+router.post('/bot/flow-mit/reset', isAuthenticated, isAdmin, resetFlowNode);
+
 // WhatsApp routes
 router.get('/whatsapp/status', isAuthenticated, (req, res) => {
     res.json(whatsappService.getStatus());

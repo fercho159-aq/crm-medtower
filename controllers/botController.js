@@ -10,81 +10,18 @@ const uploadDir = path.join(__dirname, '../public/uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 // ═══════════════════════════════════════════════════════════════
-//  MIT Medical Tower — Catálogo completo
+//  MIT Medical Tower — Catálogo (fuente única en config/botCatalog)
+//  El bot muta el CATÁLOGO en memoria vía applyOverrides(); los
+//  cambios se reflejan aquí al instante porque son referencias
+//  por objeto. Los mensajes (strings) SÍ requieren CATALOG.MENSAJES.X
 // ═══════════════════════════════════════════════════════════════
 
-const ESPECIALIDADES = [
-    { id: 'medicina_general', nombre: 'Medicina General', emoji: '🏥', aliases: ['medico general', 'general', 'consulta general'], costo: 100, anticipo: 0, resto: 100, horario: 'Todos los días, 8:30 am a 8:30 pm', sinCita: true, sinAnticipo: true },
-    { id: 'angiologia', nombre: 'Angiología', emoji: '🫀', aliases: ['angiologo', 'venas', 'varices', 'circulacion'], costo: 1000, anticipo: 200, resto: 800, horario: 'Horario abierto' },
-    { id: 'cardiologia', nombre: 'Cardiología', emoji: '❤️', aliases: ['cardiologo', 'corazon', 'presion arterial'], costo: 1000, anticipo: 300, resto: 700, horario: 'A partir de las 4:00 pm, todos los días excepto sábado' },
-    { id: 'cirugia_plastica', nombre: 'Cirugía Plástica (valoración)', emoji: '✨', aliases: ['cirujano plastico', 'plastica', 'estetica'], costo: 700, anticipo: 200, resto: 500, horario: 'Horario abierto', nota: 'Precio de la valoración, no del procedimiento' },
-    { id: 'gastroenterologia', nombre: 'Gastroenterología', emoji: '🫁', aliases: ['gastroenterologo', 'estomago', 'intestino', 'digestion', 'gastritis', 'colitis', 'reflujo'], costo: 800, anticipo: 250, resto: 550, horario: 'Horario abierto', nota: 'También realizan endoscopias y colonoscopias' },
-    { id: 'ginecologia', nombre: 'Ginecología', emoji: '🌸', aliases: ['ginecologo', 'embarazo', 'prenatal', 'mujer'], costo: 700, anticipo: null, resto: null, horario: null, asesorConfirma: 'anticipo y horario' },
-    { id: 'infectologia', nombre: 'Infectología', emoji: '🦠', aliases: ['infectologo', 'infeccion', 'vih', 'hepatitis'], costo: 1500, anticipo: 200, resto: 1300, horario: 'Horario abierto' },
-    { id: 'medicina_interna', nombre: 'Medicina Interna', emoji: '🩺', aliases: ['internista'], costo: 1000, anticipo: null, resto: null, horario: 'Horario abierto', asesorConfirma: 'anticipo ($200 a $300 según el especialista)' },
-    { id: 'nefrologia', nombre: 'Nefrología', emoji: '🫘', aliases: ['nefrologo', 'rinones', 'riñones', 'riñon'], costo: 1100, anticipo: 300, resto: 800, horario: 'Horario abierto' },
-    { id: 'neumologia', nombre: 'Neumología', emoji: '🫁', aliases: ['neumologo', 'pulmones', 'respiracion', 'asma', 'tos'], costo: 1000, anticipo: 300, resto: 700, horario: 'Horario abierto' },
-    { id: 'neurologia', nombre: 'Neurología', emoji: '🧠', aliases: ['neurologo', 'cerebro', 'migraña', 'epilepsia', 'dolor de cabeza'], costo: 1500, anticipo: 500, resto: 1000, horario: 'Horario abierto' },
-    { id: 'hematologia', nombre: 'Hematología', emoji: '🩸', aliases: ['hematologo', 'sangre', 'anemia', 'leucemia'], costo: 2000, anticipo: 500, resto: 1500, horario: 'Horario abierto' },
-    { id: 'urologia', nombre: 'Urología', emoji: '🩺', aliases: ['urologo', 'prostata', 'vias urinarias', 'disfuncion erectil'], costo: 800, anticipo: 200, resto: 600, horario: 'Lunes, miércoles y sábado, de 10:00 am a 12:00 pm' },
-    { id: 'otorrino', nombre: 'Otorrinolaringología', emoji: '👂', aliases: ['otorrino', 'oido', 'oído', 'nariz', 'garganta'], costo: 800, anticipo: 250, resto: 550, horario: 'Martes, jueves y sábado, de 10:00 am a 12:00 pm' },
-    { id: 'pediatria', nombre: 'Pediatría', emoji: '👶', aliases: ['pediatra', 'niño', 'niña', 'bebe', 'hijo', 'hija'], costo: null, anticipo: null, resto: null, horario: null, asesorConfirma: 'costo, anticipo y horario', esMenor: true },
-    { id: 'psicologia', nombre: 'Psicología', emoji: '🧘', aliases: ['psicologo', 'terapia', 'ansiedad', 'depresion'], costo: 500, anticipo: 200, resto: 300, horario: 'Horario abierto' },
-    { id: 'psiquiatria', nombre: 'Psiquiatría', emoji: '🧠', aliases: ['psiquiatra', 'salud mental', 'bipolar'], costo: 700, anticipo: null, resto: null, horario: null, asesorConfirma: 'anticipo y horario' },
-    { id: 'traumatologia', nombre: 'Traumatología y Ortopedia', emoji: '🦴', aliases: ['traumatologo', 'ortopedista', 'huesos', 'fractura', 'lesion', 'articulaciones', 'espalda', 'rodilla'], costo: 700, anticipo: 200, resto: 500, horario: 'Sábados y domingos, a partir de las 3:00 pm' },
-    { id: 'celulas_madre', nombre: 'Células Madre', emoji: '🧬', aliases: ['celulas madre', 'stem cells'], costo: null, anticipo: null, resto: null, horario: null, asesorConfirma: 'costo e información tras valoración' },
-];
-
-const ESTUDIOS_CON_CITA = [
-    { id: 'doppler', nombre: 'Ultrasonido Doppler', area: 'Angiología', costo: 3000, anticipo: 1000, resto: 2000 },
-    { id: 'holter', nombre: 'Holter', area: 'Cardiología', costo: 1500, anticipo: 500, resto: 1000, desc: 'monitoreo del ritmo del corazón' },
-    { id: 'mapa', nombre: 'MAPA', area: 'Cardiología', costo: 1500, anticipo: 500, resto: 1000, desc: 'monitoreo de presión arterial 24h' },
-    { id: 'ecocardiograma', nombre: 'Ecocardiograma', area: 'Cardiología', costo: 1500, anticipo: 500, resto: 1000, desc: 'ultrasonido del corazón' },
-    { id: 'endoscopia', nombre: 'Endoscopia y colonoscopia', area: 'Gastroenterología', costo: null, anticipo: null, resto: null, asesorConfirma: true },
-];
-
-const LABORATORIO = [
-    { nombre: 'Química sanguínea de 6 elementos', precio: 150 },
-    { nombre: 'Química sanguínea de 12 elementos', precio: 300 },
-    { nombre: 'Química sanguínea de 27 elementos', precio: 400 },
-    { nombre: 'Biometría hemática completa', precio: 80 },
-    { nombre: 'Examen general de orina', precio: 60 },
-    { nombre: 'Toma de glucosa', precio: 50 },
-    { nombre: 'Toma de presión', precio: 20 },
-    { nombre: 'Aplicación de medicamento', precio: 20, nota: 'Requiere receta médica' },
-];
-
-const PROCEDIMIENTOS = [
-    { id: 'mommy_makeover', nombre: 'Mommy Makeover', desde: '$149,900', cat: 'estetica', aliases: ['mommy', 'mommy makeover'] },
-    { id: 'abdominoplastia', nombre: 'Abdominoplastia', desde: '$109,900', cat: 'estetica', aliases: ['abdominoplastia', 'abdomen', 'panza'] },
-    { id: 'implantes', nombre: 'Implantes mamarios', desde: '$60,000', cat: 'estetica', aliases: ['implantes', 'aumento de busto', 'senos', 'busto'] },
-    { id: 'rinoplastia', nombre: 'Rinoplastia ultrasónica', desde: '$47,999', cat: 'estetica', aliases: ['rinoplastia', 'nariz'] },
-    { id: 'circuncision', nombre: 'Circuncisión pediátrica', desde: '$22,999', cat: 'pediatrica', aliases: ['circuncision', 'circuncisión'], esMenor: true },
-    { id: 'orquidopexia', nombre: 'Orquidopexia unilateral', desde: '$24,999', cat: 'pediatrica', aliases: ['orquidopexia', 'testiculo'], esMenor: true },
-    { id: 'hernia', nombre: 'Hernia umbilical o inguinal por laparoscopía', desde: '$45,000', cat: 'hernia', aliases: ['hernia'] },
-];
-
-function getPromocion() {
-    const hoy = new Date();
-    if (hoy <= new Date('2026-11-30T23:59:59')) {
-        return { activa: true, texto: '🎉 *Promoción:* Orquidopexia unilateral — paquete especial de *$24,999 con valoración gratis*. Válido hasta el 30 de noviembre.' };
-    }
-    return { activa: false };
-}
-
-const CLINICA = {
-    direccion: 'Blvd. Prados de Aragón 8B, Col. Prados de Aragón, Cd. Nezahualcóyotl, Estado de México, C.P. 57179',
-    whatsapp: '55 2838 0715',
-    web: 'medtower.com.mx',
-    horario: 'Lunes a domingo, de 9:00 a 21:00 horas',
-    maps: 'https://maps.app.goo.gl/cPKQ7FqE3vj93rrw8',
-};
-
-const CIERRE_VENTA = '¡Perfecto! Un asesor de MIT confirmará la disponibilidad y te enviará los datos para pagar tu anticipo. Tu cita queda apartada al recibirlo.\n\n📍 Te esperamos en Blvd. Prados de Aragón 8B, Col. Prados de Aragón, Cd. Nezahualcóyotl.';
-
-const CIERRE_SIN_VENTA = 'Entiendo perfectamente. En MIT Medical Tower nos preocupamos por la salud e integridad de todos nuestros pacientes. Por eso nuestros precios reflejan altos estándares de calidad, seguridad e higiene en cada consulta y procedimiento. Si más adelante decides atenderte con nosotros, aquí estaremos para ayudarte. ¡Cuídate mucho!';
-
-const CIERRE_SIN_VENTA_DISTANCIA = 'Entiendo, sabemos que la distancia es importante. En MIT Medical Tower nos preocupamos por la salud e integridad de todos nuestros pacientes, y por eso cuidamos altos estándares de calidad, seguridad e higiene. Si en algún momento decides atenderte con nosotros, con gusto te recibimos en Blvd. Prados de Aragón 8B, Cd. Nezahualcóyotl.';
+const { live: CATALOG, getPromocion } = require('../config/botCatalog');
+const ESPECIALIDADES = CATALOG.ESPECIALIDADES;
+const ESTUDIOS_CON_CITA = CATALOG.ESTUDIOS_CON_CITA;
+const LABORATORIO = CATALOG.LABORATORIO;
+const PROCEDIMIENTOS = CATALOG.PROCEDIMIENTOS;
+const CLINICA = CATALOG.CLINICA;
 
 // ═══════════════════════════════════════════════════════════════
 //  Helpers de formato
@@ -454,7 +391,7 @@ const handleUnifiedMessage = async (accountId, jid, contactName, msgText, delive
 
         // --- Menú principal ---
         const sendMainMenu = async () => {
-            await send(`¡Hola! 👋 Gracias por escribir a *MIT Medical Tower*.\n¿En qué te puedo ayudar hoy?\n\n1️⃣ Agendar cita con especialista\n2️⃣ Cirugía y procedimientos\n3️⃣ Laboratorio y estudios\n4️⃣ Ubicación y horarios\n5️⃣ Hablar con un asesor\n\nO escríbeme directamente qué necesitas 😊`);
+            await send(CATALOG.MENSAJES.SALUDO_MENU);
             await updateStep(1);
         };
 
@@ -471,11 +408,11 @@ const handleUnifiedMessage = async (accountId, jid, contactName, msgText, delive
 
         // Emergencias
         if (isEmergency(cleanMsg)) {
-            await send('⚠️ Si tienes una emergencia médica, acude de inmediato al servicio de urgencias más cercano o llama al *911*. Tu salud es lo primero.');
+            await send(CATALOG.MENSAJES.EMERGENCIA);
             return;
         }
         if (isCrisis(cleanMsg)) {
-            await send('Te escucho y me preocupo por ti. Por favor llama a la *Línea de la Vida: 800 911 2000*, es gratuita y está disponible las 24 horas. No estás solo/a. 💙');
+            await send(CATALOG.MENSAJES.CRISIS);
             return;
         }
 
@@ -485,7 +422,7 @@ const handleUnifiedMessage = async (accountId, jid, contactName, msgText, delive
 
         // Decline en pasos de "¿Te gustaría agendar?"
         if (isDecline(cleanMsgOrig) && [11, 21, 32].includes(step)) {
-            const msg = cleanMsgOrig.includes('lejos') || cleanMsgOrig.includes('distancia') ? CIERRE_SIN_VENTA_DISTANCIA : CIERRE_SIN_VENTA;
+            const msg = cleanMsgOrig.includes('lejos') || cleanMsgOrig.includes('distancia') ? CATALOG.MENSAJES.CIERRE_SIN_VENTA_DISTANCIA : CATALOG.MENSAJES.CIERRE_SIN_VENTA;
             await send(msg);
             await escalate('CIERRE_SIN_VENTA');
             return;
@@ -650,7 +587,7 @@ const handleUnifiedMessage = async (accountId, jid, contactName, msgText, delive
                     return;
                 }
                 case 5: {
-                    await send('👤 ¡Entendido! Te comunicaremos con un asesor de MIT Medical Tower. Un momento por favor...');
+                    await send(CATALOG.MENSAJES.ESCALAR_ASESOR);
                     await escalate('HABLAR_ASESOR');
                     return;
                 }
@@ -687,12 +624,12 @@ const handleUnifiedMessage = async (accountId, jid, contactName, msgText, delive
                     await escalate(`CITA_${esp.id.toUpperCase()}`);
                     return;
                 }
-                await send('¡Perfecto! Para agendar tu cita necesito tu *nombre completo*, por favor. ✏️');
+                await send(CATALOG.MENSAJES.PEDIR_NOMBRE);
                 await updateStep(70);
                 return;
             }
             if (isDecline(cleanMsgOrig)) {
-                const msg = /lejos|distancia/i.test(cleanMsgOrig) ? CIERRE_SIN_VENTA_DISTANCIA : CIERRE_SIN_VENTA;
+                const msg = /lejos|distancia/i.test(cleanMsgOrig) ? CATALOG.MENSAJES.CIERRE_SIN_VENTA_DISTANCIA : CATALOG.MENSAJES.CIERRE_SIN_VENTA;
                 await send(msg);
                 await escalate('CIERRE_SIN_VENTA');
                 return;
@@ -745,12 +682,12 @@ const handleUnifiedMessage = async (accountId, jid, contactName, msgText, delive
         // ═══════════════════════════════════════
         if (step === 21) {
             if (isAccept(cleanMsgOrig)) {
-                await send('¡Excelente! Para agendar tu valoración necesito tu *nombre completo*, por favor. ✏️');
+                await send(CATALOG.MENSAJES.PEDIR_NOMBRE_VALORACION);
                 await updateStep(70);
                 return;
             }
             if (isDecline(cleanMsgOrig)) {
-                const msg = /lejos|distancia/i.test(cleanMsgOrig) ? CIERRE_SIN_VENTA_DISTANCIA : CIERRE_SIN_VENTA;
+                const msg = /lejos|distancia/i.test(cleanMsgOrig) ? CATALOG.MENSAJES.CIERRE_SIN_VENTA_DISTANCIA : CATALOG.MENSAJES.CIERRE_SIN_VENTA;
                 await send(msg);
                 await escalate('CIERRE_SIN_VENTA');
                 return;
@@ -812,12 +749,12 @@ const handleUnifiedMessage = async (accountId, jid, contactName, msgText, delive
                     await escalate(`CITA_${est.id.toUpperCase()}`);
                     return;
                 }
-                await send('¡Perfecto! Para agendar tu estudio necesito tu *nombre completo*, por favor. ✏️');
+                await send(CATALOG.MENSAJES.PEDIR_NOMBRE_ESTUDIO);
                 await updateStep(70);
                 return;
             }
             if (isDecline(cleanMsgOrig)) {
-                await send(CIERRE_SIN_VENTA);
+                await send(CATALOG.MENSAJES.CIERRE_SIN_VENTA);
                 await escalate('CIERRE_SIN_VENTA');
                 return;
             }
@@ -896,7 +833,7 @@ const handleUnifiedMessage = async (accountId, jid, contactName, msgText, delive
 
         // STEP 72: Esperando día/horario → cierre con venta
         if (step === 72) {
-            await send(CIERRE_VENTA);
+            await send(CATALOG.MENSAJES.CIERRE_VENTA);
             const sel = getSelection(tags);
             let tag = 'CITA_AGENDADA';
             if (sel) tag = `CITA_${sel.id.toUpperCase()}`;
